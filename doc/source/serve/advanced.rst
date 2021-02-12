@@ -321,6 +321,10 @@ The following metrics are exposed by Ray Serve:
      - The number of HTTP requests processed.
    * - ``serve_num_router_requests``
      - The number of requests processed by the router.
+   * - ``serve_handle_request_counter``
+     - The number of requests processed by this ServeHandle.
+   * - ``backend_queued_queries`` 
+     - The number of queries for this backend waiting to be assigned to a replica.
 
 To see this in action, run ``ray start --head --metrics-export-port=8080`` in your terminal, and then run the following script:
 
@@ -361,7 +365,7 @@ The following simple example will make the usage clear:
 The `reconfigure` method is called when the class is created if `user_config`
 is set.  In particular, it's also called when new replicas are created in the
 future, in case you decide to scale up your backend later.  The
-`reconfigure` method is also called each time `user_config` is updated via 
+`reconfigure` method is also called each time `user_config` is updated via
 :mod:`client.update_backend_config <ray.serve.api.Client.update_backend_config>`.
 
 Dependency Management
@@ -386,11 +390,6 @@ as shown below.
 
 .. literalinclude:: ../../../python/ray/serve/examples/doc/conda_env.py
 
-.. warning::
-  The script must be run in an activated conda environment (not required to be
-  ``ray-tf1`` or ``ray-tf2``).  We hope to remove this restriction in the
-  future.
-
 .. note::
   If the argument ``env`` is omitted, backends will be started in the same
   conda environment as the caller of
@@ -399,9 +398,26 @@ as shown below.
 
 The dependencies required in the backend may be different than
 the dependencies installed in the driver program (the one running Serve API
-calls). In this case, you can use an
-:mod:`ImportedBackend <ray.serve.backends.ImportedBackend>` to specify a
-backend based on a class that is installed in the Python environment that
-the workers will run in. Example:
+calls). In this case, you can pass the backend in as an import path that will
+be imported in the Python environment in the workers, but not the driver.
+Example:
 
 .. literalinclude:: ../../../python/ray/serve/examples/doc/imported_backend.py
+
+Configuring HTTP Server Locations
+=================================
+
+By default, Ray Serve starts only one HTTP on the head node of the Ray cluster.
+You can configure this behavior using the ``http_options={"location": ...}`` flag
+in :mod:`serve.start <ray.serve.start>`:
+
+- "HeadOnly": start one HTTP server on the head node. Serve
+  assumes the head node is the node you executed serve.start
+  on. This is the default.
+- "EveryNode": start one HTTP server per node.
+- "NoServer" or ``None``: disable HTTP server.
+
+.. note::
+   Using the "EveryNode" option, you can point a cloud load balancer to the
+   instance group of Ray cluster to achieve high availability of Serve's HTTP
+   proxies.

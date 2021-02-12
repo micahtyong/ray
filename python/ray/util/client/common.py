@@ -82,7 +82,11 @@ class ClientRemoteFunc(ClientStub):
     def options(self, **kwargs):
         return OptionWrapper(self, kwargs)
 
-    def _remote(self, args=[], kwargs={}, **option_args):
+    def _remote(self, args=None, kwargs=None, **option_args):
+        if args is None:
+            args = []
+        if kwargs is None:
+            kwargs = {}
         return self.options(**option_args).remote(*args, **kwargs)
 
     def __repr__(self):
@@ -150,7 +154,11 @@ class ClientActorClass(ClientStub):
     def options(self, **kwargs):
         return ActorOptionWrapper(self, kwargs)
 
-    def _remote(self, args=[], kwargs={}, **option_args):
+    def _remote(self, args=None, kwargs=None, **option_args):
+        if args is None:
+            args = []
+        if kwargs is None:
+            kwargs = {}
         return self.options(**option_args).remote(*args, **kwargs)
 
     def __repr__(self):
@@ -181,10 +189,6 @@ class ClientActorHandle(ClientStub):
     Args:
         actor_ref: A reference to the running actor given to the client. This
           is a serialized version of the actual handle as an opaque token.
-        actor_class: A reference to the ClientActorClass that this actor was
-          instantiated from.
-        _real_actor_handle: Cached copy of the Raylet-side
-          ray.actor.ActorHandle contained in the actor_id ref.
     """
 
     def __init__(self, actor_ref: ClientActorRef):
@@ -234,7 +238,11 @@ class ClientRemoteMethod(ClientStub):
     def options(self, **kwargs):
         return OptionWrapper(self, kwargs)
 
-    def _remote(self, args=[], kwargs={}, **option_args):
+    def _remote(self, args=None, kwargs=None, **option_args):
+        if args is None:
+            args = []
+        if kwargs is None:
+            kwargs = {}
         return self.options(**option_args).remote(*args, **kwargs)
 
     def _prepare_client_task(self) -> ray_client_pb2.ClientTask:
