@@ -140,7 +140,7 @@ decorator==4.4.2
     #   networkx
     #   paramz
     #   tensorflow-probability
-decord==0.4.2
+decord==0.5.2
     # via gluoncv
 defusedxml==0.6.0
     # via nbconvert
